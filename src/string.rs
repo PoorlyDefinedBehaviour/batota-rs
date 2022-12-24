@@ -4,7 +4,7 @@ use windows::Win32::Foundation::CHAR;
 ///
 /// # Example
 ///
-/// ```
+/// ```rust
 /// use windows::Win32::Foundation::CHAR;
 /// use batota::string::chars_to_string;
 /// let chars = [CHAR(104), CHAR(101), CHAR(108), CHAR(108), CHAR(111), CHAR(0)];

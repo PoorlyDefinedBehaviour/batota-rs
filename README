@@ -1,0 +1,5 @@
+# Documentation
+
+```
+cargo doc --open --document-private-items
+```
