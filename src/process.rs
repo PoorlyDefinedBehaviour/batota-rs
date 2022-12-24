@@ -1,4 +1,7 @@
+use std::time::Duration;
+
 use anyhow::Result;
+use tracing::info;
 use windows::Win32::{
     Foundation::CloseHandle,
     System::Diagnostics::ToolHelp::{
@@ -33,5 +36,30 @@ pub fn get_proc_id(process_name: &str) -> Result<Option<ProcessId>> {
 
         CloseHandle(hsnap);
         Ok(None)
+    }
+}
+
+/// Waits for a process to start executing and then tries
+/// to get its process id.
+///
+/// # Example
+///
+/// ```norun
+/// let proc_id = wait_for_proc("notepad.exe");
+/// ```
+#[tracing::instrument(name = "wait_for_proc_id", skip_all, fields(
+    proc_name = ?proc_name
+))]
+pub fn wait_for_proc_id(proc_name: &str) -> ProcessId {
+    loop {
+        if let Ok(maybe_proc_id) = get_proc_id(proc_name) {
+            if let Some(proc_id) = maybe_proc_id {
+                tracing::Span::current().record("proc_id", proc_id);
+                return proc_id;
+            }
+        }
+
+        info!("waiting for {} to start executing", proc_name);
+        std::thread::sleep(Duration::from_secs(1));
     }
 }
