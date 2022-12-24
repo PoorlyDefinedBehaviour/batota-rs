@@ -10,6 +10,9 @@ use windows::Win32::Foundation::CHAR;
 /// let chars = [CHAR(104), CHAR(101), CHAR(108), CHAR(108), CHAR(111), CHAR(0)];
 /// assert_eq!(chars_to_string(&chars), "hello".to_owned());
 /// ```
+#[tracing::instrument(name = "string::chars_to_string", skip_all, fields(
+    chars = ?chars
+))]
 pub fn chars_to_string(chars: &[CHAR]) -> String {
     let name_ends_at_index = {
         let mut i = 0;
@@ -26,5 +29,9 @@ pub fn chars_to_string(chars: &[CHAR]) -> String {
         .map(|char| char.0)
         .collect();
 
-    String::from_utf8_lossy(s.as_ref()).to_string()
+    let s = String::from_utf8_lossy(s.as_ref()).to_string();
+
+    tracing::Span::current().record("string", &s);
+
+    s
 }
